@@ -43,19 +43,19 @@ public class WebSecurityConfig {
 //    }
 
 
-    @Bean
-    UserDetailsService userDetailsService() {
-
-        UserDetails user1 = User.withUsername("admin").password(passwordEncoder().encode("admin@123")).roles("ADMIN").build();
-        UserDetails user2 = User.withUsername("user").password(passwordEncoder().encode("user@123")).roles("STANDARD").build();
-
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-        jdbcUserDetailsManager.createUser(user1);
-        jdbcUserDetailsManager.createUser(user2);
-
-        jdbcUserDetailsManager.getUsersByUsernameQuery();
-        return jdbcUserDetailsManager;
-    }
+//    @Bean
+//    UserDetailsService userDetailsService() {
+//
+//        UserDetails user1 = User.withUsername("admin").password(passwordEncoder().encode("admin@123")).roles("ADMIN").build();
+//        UserDetails user2 = User.withUsername("user").password(passwordEncoder().encode("user@123")).roles("STANDARD").build();
+//
+//        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+//        jdbcUserDetailsManager.createUser(user1);
+//        jdbcUserDetailsManager.createUser(user2);
+//
+//        jdbcUserDetailsManager.getUsersByUsernameQuery();
+//        return jdbcUserDetailsManager;
+//    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
