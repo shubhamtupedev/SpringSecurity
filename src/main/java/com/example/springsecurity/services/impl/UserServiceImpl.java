@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -73,6 +72,8 @@ public class UserServiceImpl implements UserService {
             transactionRepository.save(transaction);
             e.printStackTrace();
         }
+
+        return userListResult;
     }
 
     @Override
