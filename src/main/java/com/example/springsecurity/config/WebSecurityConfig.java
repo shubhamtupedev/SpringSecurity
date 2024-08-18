@@ -1,4 +1,4 @@
-package com.example.springsecurity;
+package com.example.springsecurity.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

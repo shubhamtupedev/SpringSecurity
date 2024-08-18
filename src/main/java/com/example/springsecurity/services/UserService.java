@@ -1,18 +1,23 @@
 package com.example.springsecurity.services;
 
+import com.example.springsecurity.Exception.UserAlreadyExistsException;
+import com.example.springsecurity.Exception.UserNotFoundException;
+import com.example.springsecurity.Exception.UserServiceLogicException;
+import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.entity.User;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface UserService {
-    public String saveUser(User user);
+    public ResponseEntity<ApiResponseDto<?>> saveUser(User user) throws UserAlreadyExistsException, UserServiceLogicException;
 
-    public List<User> getUser(String username);
+    public ResponseEntity<ApiResponseDto<?>> getUser(String username) throws UserNotFoundException, UserServiceLogicException;
 
-    public String deleteUser(String username);
+    public ResponseEntity<ApiResponseDto<?>> deleteUser(String username) throws UserNotFoundException, UserServiceLogicException;
 
-    public String updateUser(String username, User user);
+    public ResponseEntity<ApiResponseDto<?>> updateUser(String username, User user) throws UserNotFoundException, UserServiceLogicException;
 
-    public List<User> getAllUsers();
+    public ResponseEntity<ApiResponseDto<?>> getAllUsers() throws UserServiceLogicException;
 
 }

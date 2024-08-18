@@ -1,33 +1,46 @@
 package com.example.springsecurity.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "GEN_MST_USR_LST")
+@Table(name = "GEN_MST_USR_LST", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "userName")
+})
 public class User extends AuditableModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @NotBlank
+    @Size(min = 3, max = 10)
     @Column(name = "usr_name")
     private String userName;
 
     @Column(name = "usr_pwd")
+    @NotBlank
     private String password;
 
     @Column(name = "acnt_enable")
+    @NotBlank
     private Boolean isAcntEnabled;
 
     @Column(name = "pwd_expiry_date")
+    @NotBlank
     private Timestamp passwordExpiryDate;
 
     @Column(name = "email_id")
+    @Email
     private String emailId;
 
     @Column(name = "mobile_number")
+    @Size(min = 10, max = 10)
     private String mobileNo;
 
     public Long getUserId() {
@@ -88,6 +101,15 @@ public class User extends AuditableModel implements Serializable {
 
     public User(Long userId, String userName, String password, Boolean isAcntEnabled, Timestamp passwordExpiryDate, String emailId, String mobileNo) {
         this.userId = userId;
+        this.userName = userName;
+        this.password = password;
+        this.isAcntEnabled = isAcntEnabled;
+        this.passwordExpiryDate = passwordExpiryDate;
+        this.emailId = emailId;
+        this.mobileNo = mobileNo;
+    }
+
+    public User(String userName, String password, Boolean isAcntEnabled, Timestamp passwordExpiryDate, String emailId, String mobileNo) {
         this.userName = userName;
         this.password = password;
         this.isAcntEnabled = isAcntEnabled;
