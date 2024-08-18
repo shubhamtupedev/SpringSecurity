@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     @Autowired
@@ -29,8 +29,9 @@ public class UserController {
     }
 
     @PostMapping("/saveUser")
-    public ResponseEntity<ApiResponseDto<?>> registerUser(@Valid @RequestBody User user) throws UserAlreadyExistsException, UserServiceLogicException {
-        return userService.saveUser(user);
+    public ResponseEntity<ApiResponseDto<?>> registerUser() throws UserAlreadyExistsException, UserServiceLogicException {
+
+        return userService.saveUser(new User());
     }
 
     @DeleteMapping("/delete/{username}")

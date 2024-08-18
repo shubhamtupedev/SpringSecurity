@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,8 +27,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+//    @Autowired
+//    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -50,7 +50,8 @@ public class UserServiceImpl implements UserService {
             calendar.add(Calendar.DAY_OF_WEEK, passwordExpiryDays);
             passwordExpiryDate.setTime(calendar.getTime().getTime());
             user.setPasswordExpiryDate(passwordExpiryDate);
-            User userDetails = new User(user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
+//            User userDetails = new User(user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
+            User userDetails = new User(user.getUserName(), user.getPassword(), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
             userDetails.setCreatedBy(user.getUserName());
             Timestamp createdDate = new Timestamp(System.currentTimeMillis());
             userDetails.setCreatedDate(createdDate);
@@ -59,9 +60,9 @@ public class UserServiceImpl implements UserService {
         } catch (UserAlreadyExistsException e) {
             Transaction transaction = new Transaction(UUID.randomUUID().toString(), e.getMessage(), "saveUser", "UserServiceImpl");
             transactionRepository.save(transaction);
-            e.printStackTrace();
             throw new UserAlreadyExistsException(e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             throw new UserServiceLogicException();
         }
     }
@@ -77,9 +78,9 @@ public class UserServiceImpl implements UserService {
         } catch (UserNotFoundException userNotFoundException) {
             Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "getUser", "UserServiceImpl");
             transactionRepository.save(transaction);
-            userNotFoundException.printStackTrace();
             throw new UserNotFoundException(userNotFoundException.getMessage());
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw new UserServiceLogicException();
         }
     }
@@ -97,9 +98,9 @@ public class UserServiceImpl implements UserService {
         } catch (UserNotFoundException userNotFoundException) {
             Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "deleteUser", "UserServiceImpl");
             transactionRepository.save(transaction);
-            userNotFoundException.printStackTrace();
             throw new UserNotFoundException(userNotFoundException.getMessage());
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw new UserServiceLogicException();
         }
     }
@@ -120,9 +121,9 @@ public class UserServiceImpl implements UserService {
         } catch (UserNotFoundException userNotFoundException) {
             Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "updateUser", "UserServiceImpl");
             transactionRepository.save(transaction);
-            userNotFoundException.printStackTrace();
             throw new UserNotFoundException(userNotFoundException.getMessage());
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw new UserServiceLogicException();
         }
     }
@@ -133,6 +134,7 @@ public class UserServiceImpl implements UserService {
             List<User> userList = userRepository.findAll();
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), userList));
         } catch (Exception exception) {
+            exception.printStackTrace();
             throw new UserServiceLogicException();
         }
     }
