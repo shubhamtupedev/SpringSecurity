@@ -30,7 +30,7 @@ public class UserController {
 
     @PostMapping("/saveUser")
     public ResponseEntity<ApiResponseDto<?>> registerUser() throws UserAlreadyExistsException, UserServiceLogicException {
-
+        System.out.println("HELLO WORLD");
         return userService.saveUser(new User());
     }
 
