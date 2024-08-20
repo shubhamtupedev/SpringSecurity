@@ -29,17 +29,16 @@ public class UserController {
     }
 
     @PostMapping("/saveUser")
-    public ResponseEntity<ApiResponseDto<?>> registerUser() throws UserAlreadyExistsException, UserServiceLogicException {
-        System.out.println("HELLO WORLD");
-        return userService.saveUser(new User());
+    public ResponseEntity<ApiResponseDto<?>> registerUser(@Valid @RequestBody User user) throws UserAlreadyExistsException, UserServiceLogicException {
+        return userService.saveUser(user);
     }
 
-    @DeleteMapping("/delete/{username}")
+    @DeleteMapping("/deleteUser/{username}")
     public ResponseEntity<ApiResponseDto<?>> deleteUser(@PathVariable String username) throws UserNotFoundException, UserServiceLogicException {
         return userService.deleteUser(username);
     }
 
-    @PutMapping("/update/{username}")
+    @PutMapping("/updateUser/{username}")
     public ResponseEntity<ApiResponseDto<?>> updateUser(@Valid @PathVariable String username, @RequestBody User user) throws UserNotFoundException, UserServiceLogicException {
         return userService.updateUser(username, user);
     }

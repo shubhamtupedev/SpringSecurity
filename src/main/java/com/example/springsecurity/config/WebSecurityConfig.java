@@ -3,6 +3,7 @@ package com.example.springsecurity.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,12 +20,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import javax.sql.DataSource;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 //@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Autowired
     DataSource dataSource;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -58,22 +62,30 @@ public class WebSecurityConfig {
 //    }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
     }
 
 
+//    @Bean
+//    UserDetailsService userDetailsService() {
+//
+//        UserDetails user1 = User.withUsername("admin").password(passwordEncoder().encode("admin@123")).roles("ADMIN").build();
+//        UserDetails user2 = User.withUsername("user").password(passwordEncoder().encode("user@123")).roles("STANDARD").build();
+//
+//        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+//        jdbcUserDetailsManager.createUser(user1);
+//        jdbcUserDetailsManager.createUser(user2);
+//
+//        return jdbcUserDetailsManager;
+//    }
+
     @Bean
-    UserDetailsService userDetailsService() {
-
-        UserDetails user1 = User.withUsername("admin").password(passwordEncoder().encode("admin@123")).roles("ADMIN").build();
-        UserDetails user2 = User.withUsername("user").password(passwordEncoder().encode("user@123")).roles("STANDARD").build();
-
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-        jdbcUserDetailsManager.createUser(user1);
-        jdbcUserDetailsManager.createUser(user2);
-
-        return jdbcUserDetailsManager;
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
     }
 
 }

@@ -5,6 +5,7 @@ import com.example.springsecurity.Exception.UserNotFoundException;
 import com.example.springsecurity.Exception.UserServiceLogicException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
+import com.example.springsecurity.config.UserPrincipal;
 import com.example.springsecurity.entity.Transaction;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.repository.TransactionRepository;
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -51,8 +55,7 @@ public class UserServiceImpl implements UserService {
             calendar.add(Calendar.DAY_OF_WEEK, passwordExpiryDays);
             passwordExpiryDate.setTime(calendar.getTime().getTime());
             user.setPasswordExpiryDate(passwordExpiryDate);
-//            User userDetails = new User(user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
-            User userDetails = new User(user.getUserName(), user.getPassword(), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
+            User userDetails = new User(user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
             userDetails.setCreatedBy(user.getUserName());
             Timestamp createdDate = new Timestamp(System.currentTimeMillis());
             userDetails.setCreatedDate(createdDate);
@@ -113,11 +116,14 @@ public class UserServiceImpl implements UserService {
                 throw new UserNotFoundException("User Not Exists! Kindly check username.");
             }
             User userList = userRepository.findByUsername(username);
-            User u = new User(user.getUserName(), user.getPassword(), userList.getAcntEnabled(), userList.getPasswordExpiryDate(), user.getEmailId(), user.getMobileNo());
+            userList.setUserName(user.getUserName());
+            userList.setPassword(passwordEncoder.encode(user.getPassword()));
+            userList.setEmailId(user.getEmailId());
+            userList.setMobileNo(user.getMobileNo());
             Timestamp modifiedDate = new Timestamp(System.currentTimeMillis());
-            u.setModifiedDate(modifiedDate);
-            u.setModifiedBy(user.getUserName());
-            userRepository.save(u);
+            userList.setModifiedDate(modifiedDate);
+            userList.setModifiedBy(user.getUserName());
+            userRepository.save(userList);
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User Updated Successfully"));
         } catch (UserNotFoundException userNotFoundException) {
             Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "updateUser", "UserServiceImpl");
@@ -138,5 +144,14 @@ public class UserServiceImpl implements UserService {
             exception.printStackTrace();
             throw new UserServiceLogicException();
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        if (userRepository.findByUsername(username) == null) {
+            throw new UsernameNotFoundException("User Not Exists! Kindly check username.");
+        }
+        User user = userRepository.findByUsername(username);
+        return new UserPrincipal(user);
     }
 }
