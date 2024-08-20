@@ -28,7 +28,7 @@ public class UserController {
         return userService.getUser(username);
     }
 
-    @PostMapping("/saveUser")
+    @PostMapping("/registerUser")
     public ResponseEntity<ApiResponseDto<?>> registerUser(@Valid @RequestBody User user) throws UserAlreadyExistsException, UserServiceLogicException {
         return userService.saveUser(user);
     }

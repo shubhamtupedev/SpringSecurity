@@ -24,15 +24,13 @@ import javax.sql.DataSource;
 //@EnableMethodSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    DataSource dataSource;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    public UserDetailsService userDetailsService;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/v1/user/**").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/v1/user/registerUser").permitAll().anyRequest().authenticated());
         http.httpBasic(Customizer.withDefaults());
         http.csrf((csrf) -> csrf.disable());
         return http.build();
@@ -84,7 +82,7 @@ public class WebSecurityConfig {
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         return daoAuthenticationProvider;
     }
 

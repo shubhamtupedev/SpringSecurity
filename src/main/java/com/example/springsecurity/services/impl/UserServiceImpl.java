@@ -13,6 +13,7 @@ import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public @Lazy PasswordEncoder passwordEncoder;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> saveUser(User user) throws UserAlreadyExistsException, UserServiceLogicException {
         try {
-            if (userRepository.findByUsername(user.getUserName()) != null) {
+            if (userRepository.findByUserName(user.getUserName()) != null) {
                 throw new UserAlreadyExistsException("Registration Failed! Username already exists " + user.getUserName());
             }
             if (userRepository.findByEmail(user.getEmailId()) != null) {
@@ -55,14 +56,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             calendar.add(Calendar.DAY_OF_WEEK, passwordExpiryDays);
             passwordExpiryDate.setTime(calendar.getTime().getTime());
             user.setPasswordExpiryDate(passwordExpiryDate);
-            User userDetails = new User(user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
+            User userDetails = new User(null, user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
             userDetails.setCreatedBy(user.getUserName());
             Timestamp createdDate = new Timestamp(System.currentTimeMillis());
             userDetails.setCreatedDate(createdDate);
             userRepository.save(userDetails);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User Registration Successfull"));
         } catch (UserAlreadyExistsException e) {
-            Transaction transaction = new Transaction(UUID.randomUUID().toString(), e.getMessage(), "saveUser", "UserServiceImpl");
+            Transaction transaction = new Transaction(null, UUID.randomUUID().toString(), e.getMessage(), "saveUser", "UserServiceImpl");
             transactionRepository.save(transaction);
             throw new UserAlreadyExistsException(e.getMessage());
         } catch (Exception e) {
@@ -74,13 +75,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> getUser(String username) throws UserNotFoundException, UserServiceLogicException {
         try {
-            if (userRepository.findByUsername(username) == null) {
+            if (userRepository.findByUserName(username) == null) {
                 throw new UserNotFoundException("User Not Exists! Kindly check username.");
             }
-            User user = userRepository.findByUsername(username);
+            User user = userRepository.findByUserName(username);
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), user));
         } catch (UserNotFoundException userNotFoundException) {
-            Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "getUser", "UserServiceImpl");
+            Transaction transaction = new Transaction(null, UUID.randomUUID().toString(), userNotFoundException.getMessage(), "getUser", "UserServiceImpl");
             transactionRepository.save(transaction);
             throw new UserNotFoundException(userNotFoundException.getMessage());
         } catch (Exception exception) {
@@ -93,14 +94,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> deleteUser(String username) throws UserNotFoundException, UserServiceLogicException {
         try {
-            if (userRepository.findByUsername(username) == null) {
+            if (userRepository.findByUserName(username) == null) {
                 throw new UserNotFoundException("User Not Exists! Kindly check username.");
             }
-            User user = userRepository.findByUsername(username);
+            User user = userRepository.findByUserName(username);
             userRepository.deleteById(user.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User Deleted Successfully"));
         } catch (UserNotFoundException userNotFoundException) {
-            Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "deleteUser", "UserServiceImpl");
+            Transaction transaction = new Transaction(null, UUID.randomUUID().toString(), userNotFoundException.getMessage(), "deleteUser", "UserServiceImpl");
             transactionRepository.save(transaction);
             throw new UserNotFoundException(userNotFoundException.getMessage());
         } catch (Exception exception) {
@@ -112,10 +113,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> updateUser(String username, User user) throws UserNotFoundException, UserServiceLogicException {
         try {
-            if (userRepository.findByUsername(username) == null) {
+            if (userRepository.findByUserName(username) == null) {
                 throw new UserNotFoundException("User Not Exists! Kindly check username.");
             }
-            User userList = userRepository.findByUsername(username);
+            User userList = userRepository.findByUserName(username);
             userList.setUserName(user.getUserName());
             userList.setPassword(passwordEncoder.encode(user.getPassword()));
             userList.setEmailId(user.getEmailId());
@@ -126,7 +127,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userRepository.save(userList);
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User Updated Successfully"));
         } catch (UserNotFoundException userNotFoundException) {
-            Transaction transaction = new Transaction(UUID.randomUUID().toString(), userNotFoundException.getMessage(), "updateUser", "UserServiceImpl");
+            Transaction transaction = new Transaction(null, UUID.randomUUID().toString(), userNotFoundException.getMessage(), "updateUser", "UserServiceImpl");
             transactionRepository.save(transaction);
             throw new UserNotFoundException(userNotFoundException.getMessage());
         } catch (Exception exception) {
@@ -148,10 +149,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (userRepository.findByUsername(username) == null) {
+        if (userRepository.findByUserName(username) == null) {
             throw new UsernameNotFoundException("User Not Exists! Kindly check username.");
         }
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUserName(username);
         return new UserPrincipal(user);
     }
 }

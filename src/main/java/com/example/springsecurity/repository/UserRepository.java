@@ -12,7 +12,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 //    @Query(value = "FROM User WHERE userName= ?1")
-    public User findByUsername(String userName);
+    public User findByUserName(String userName);
 
     @Query(value = "FROM User where emailId= ?1")
     public User findByEmail(String emailId);
