@@ -15,13 +15,19 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class AuditableModel {
 
-    @Column(name = "created_date")
+    @Column(name = "CREATED_DATE")
     private Timestamp createdDate;
-    @Column(name = "created_by")
+
+    @Column(name = "CREATED_BY")
     private String createdBy;
-    @Column(name = "modified_by")
+
+    @Column(name = "MODIFIED_BY")
     private String modifiedBy;
-    @Column(name = "modified_date")
+
+    @Column(name = "MODIFIED_DATE")
     private Timestamp modifiedDate;
+
+    @Column(name = "DTL_ID")
+    private Long dtlId;
 
 }
