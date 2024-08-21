@@ -39,7 +39,7 @@ public class User extends AuditableModel implements Serializable {
     @Column(name = "USER_PWD")
     @Size(min = 8, message = "Password should be minimum 8 characters!")
     @Size(max = 15, message = "Password should be upto 15 characters!")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@$!%*?&])[A-Za-z\\\\d@$!%*?&]+$", message = "Password must be include at least one uppercase letter, one lowercase letter, one number, and one special character.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@.#$%^&*])[a-zA-Z0-9!@.#$%^&*]{8,15}", message = "Password must be include at least one uppercase letter, one lowercase letter, one number, and one special character.")
     @NotBlank(message = "Password is required!")
     private String password;
 
