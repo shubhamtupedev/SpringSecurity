@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
-    public @Lazy PasswordEncoder passwordEncoder;
+    private @Lazy PasswordEncoder passwordEncoder;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (userRepository.findByUserName(user.getUserName()) != null) {
                 throw new UserAlreadyExistsException("Registration Failed! Username already exists " + user.getUserName());
             }
-            if (userRepository.findByEmail(user.getEmailId()) != null) {
+            if (userRepository.findByemailId(user.getEmailId()) != null) {
                 throw new UserAlreadyExistsException("Registration Failed! Email already exists " + user.getEmailId());
             }
             Timestamp passwordExpiryDate = new Timestamp(System.currentTimeMillis());
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             calendar.add(Calendar.DAY_OF_WEEK, passwordExpiryDays);
             passwordExpiryDate.setTime(calendar.getTime().getTime());
             user.setPasswordExpiryDate(passwordExpiryDate);
-            User userDetails = new User(null, user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo());
+            User userDetails = new User(null, user.getUserName(), passwordEncoder.encode(user.getPassword()), true, passwordExpiryDate, user.getEmailId(), user.getMobileNo(), false);
             userDetails.setCreatedBy(user.getUserName());
             Timestamp createdDate = new Timestamp(System.currentTimeMillis());
             userDetails.setCreatedDate(createdDate);
