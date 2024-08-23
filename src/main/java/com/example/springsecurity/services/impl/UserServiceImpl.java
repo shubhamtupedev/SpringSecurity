@@ -8,6 +8,7 @@ import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
 import com.example.springsecurity.config.UserPrincipal;
 import com.example.springsecurity.entity.Transaction;
 import com.example.springsecurity.entity.User;
+import com.example.springsecurity.entityDTO.UserDTO;
 import com.example.springsecurity.repository.TransactionRepository;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.services.UserService;
@@ -46,27 +47,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private int passwordExpiryAlertDays;
 
     @Override
-    public ResponseEntity<ApiResponseDto<?>> saveUser(User user) throws UserAlreadyExistsException, UserServiceLogicException {
+    public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws UserAlreadyExistsException, UserServiceLogicException {
         try {
-            if (userRepository.findByUserName(user.getUserName()) != null) {
-                throw new UserAlreadyExistsException("Registration Failed! Username already exists " + user.getUserName());
+            if (userRepository.findByUserName(userDTO.getUserName()) != null) {
+                throw new UserAlreadyExistsException("Registration Failed! Username already exists " + userDTO.getUserName());
             }
-            if (userRepository.findByemailId(user.getEmailId()) != null) {
-                throw new UserAlreadyExistsException("Registration Failed! Email already exists " + user.getEmailId());
+            if (userRepository.findByemail(userDTO.getEmail()) != null) {
+                throw new UserAlreadyExistsException("Registration Failed! Email already exists " + userDTO.getEmail());
             }
 
-            User userDetails = new User();
+            User userDetails = new User(userDTO);
 
-            userDetails.setUserName(user.getUserName());
-            userDetails.setPassword(passwordEncoder.encode(user.getPassword()));
-            userDetails.setMobileNo(user.getMobileNo());
-            userDetails.setEmailId(user.getEmailId());
             userDetails.setCurrentSessions(Long.valueOf(0));
-            userDetails.setSalutation(user.getSalutation());
-            userDetails.setUserType(user.getUserType());
-            userDetails.setDateOfBirth(user.getDateOfBirth());
-            userDetails.setFirstName(user.getFirstName());
-            userDetails.setLastName(user.getLastName());
+            userDetails.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
             Timestamp passwordExpiryDate = new Timestamp(System.currentTimeMillis());
             Calendar calendar = Calendar.getInstance();
@@ -87,7 +80,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userDetails.setOnlineInd(false);
             Long dtlId = transactionServiceImpl.getMaxDtlId();
             userDetails.setDtlId(dtlId);
-            userDetails.setCreatedBy(user.getUserName());
+            userDetails.setCreatedBy(userDTO.getUserName());
 
             Timestamp createdDate = new Timestamp(System.currentTimeMillis());
             userDetails.setCreatedDate(createdDate);
@@ -154,7 +147,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User userList = userRepository.findByUserName(username);
             userList.setUserName(user.getUserName());
             userList.setPassword(passwordEncoder.encode(user.getPassword()));
-            userList.setEmailId(user.getEmailId());
+            userList.setEmail(user.getEmail());
             userList.setMobileNo(user.getMobileNo());
             Timestamp modifiedDate = new Timestamp(System.currentTimeMillis());
             userList.setModifiedDate(modifiedDate);

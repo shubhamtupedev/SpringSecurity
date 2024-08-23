@@ -39,6 +39,7 @@ public class UserServiceExceptionHandler {
         methodArgumentNotValidException.getBindingResult().getFieldErrors().forEach(error -> {
             errorMessage.add(error.getDefaultMessage());
         });
+        System.out.println(errorMessage.toString());
         return ResponseEntity.badRequest().body(new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), errorMessage.toString()));
     }
 }

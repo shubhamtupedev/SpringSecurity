@@ -1,6 +1,7 @@
 package com.example.springsecurity.entity;
 
 import com.example.springsecurity.Utility.BooleanToStringConverter;
+import com.example.springsecurity.entityDTO.SystemParameterDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -38,4 +39,11 @@ public class SystemParameter extends AuditableModel implements Serializable {
     @Column(name = "INACTIVE")
     @Convert(converter = BooleanToStringConverter.class)
     private boolean inactive;
+
+    public SystemParameter(SystemParameterDTO systemParameterDTO) {
+        this.sysParamKey = systemParameterDTO.getSysParamKey();
+        this.sysParamVal = systemParameterDTO.getSysParamVal();
+        this.sysParamDesc = systemParameterDTO.getSysParamDesc();
+        this.inactive = systemParameterDTO.isInactive();
+    }
 }

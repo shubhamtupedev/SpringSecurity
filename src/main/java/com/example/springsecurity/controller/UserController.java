@@ -5,6 +5,7 @@ import com.example.springsecurity.Exception.UserNotFoundException;
 import com.example.springsecurity.Exception.UserServiceLogicException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.entity.User;
+import com.example.springsecurity.entityDTO.UserDTO;
 import com.example.springsecurity.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,8 @@ public class UserController {
     }
 
     @PostMapping("/registerUser")
-    public ResponseEntity<ApiResponseDto<?>> registerUser(@Valid @RequestBody User user) throws UserAlreadyExistsException, UserServiceLogicException {
-        return userService.saveUser(user);
+    public ResponseEntity<ApiResponseDto<?>> registerUser(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistsException, UserServiceLogicException {
+        return userService.saveUser(userDTO);
     }
 
     @DeleteMapping("/deleteUser/{username}")

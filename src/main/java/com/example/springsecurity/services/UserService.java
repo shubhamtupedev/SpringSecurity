@@ -5,12 +5,13 @@ import com.example.springsecurity.Exception.UserNotFoundException;
 import com.example.springsecurity.Exception.UserServiceLogicException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.entity.User;
+import com.example.springsecurity.entityDTO.UserDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface UserService {
-    public ResponseEntity<ApiResponseDto<?>> saveUser(User user) throws UserAlreadyExistsException, UserServiceLogicException;
+    public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws UserAlreadyExistsException, UserServiceLogicException;
 
     public ResponseEntity<ApiResponseDto<?>> getUser(String username) throws UserNotFoundException, UserServiceLogicException;
 

@@ -1,6 +1,7 @@
 package com.example.springsecurity.entity;
 
 import com.example.springsecurity.Utility.BooleanToStringConverter;
+import com.example.springsecurity.entityDTO.UserDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -24,23 +27,16 @@ import java.sql.Timestamp;
         @UniqueConstraint(columnNames = "MOBILE_NUMBER")
 })
 public class User extends AuditableModel implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
     private Long id;
 
-    @NotBlank(message = "Username is required!")
-    @Size(min = 3, message = "Username must have atleast 3 characters!")
-    @Size(max = 15, message = "Username can have almost 15 characters!")
-    @Pattern(regexp = "[A-Za-z]+", message = "Username must contain only characters!")
     @Column(name = "USER_NAME")
     private String userName;
 
     @Column(name = "USER_PWD")
-    @Size(min = 8, message = "Password should be minimum 8 characters!")
-    @Size(max = 15, message = "Password should be upto 15 characters!")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@.#$%^&*])[a-zA-Z0-9!@.#$%^&*]{8,15}", message = "Password must be include at least one uppercase letter, one lowercase letter, one number, and one special character.")
-    @NotBlank(message = "Password is required!")
     private String password;
 
     @Column(name = "ACNT_ENABLE")
@@ -51,14 +47,9 @@ public class User extends AuditableModel implements Serializable {
     private Timestamp passwordExpiryDate;
 
     @Column(name = "EMAIL")
-    @Email(message = "Email is not valid format!")
-    @NotBlank(message = "Email is required!")
-    private String emailId;
+    private String email;
 
     @Column(name = "MOBILE_NUMBER")
-    @NotBlank(message = "Mobile number is required!")
-    @Size(min = 10, max = 10, message = "Mobile number must have 10 characters!")
-    @Pattern(regexp = "^[0-9]*$", message = "Mobile number must contains only digits!")
     private String mobileNo;
 
     @Column(name = "INACTIVE")
@@ -76,9 +67,6 @@ public class User extends AuditableModel implements Serializable {
 
     @Column(name = "USER_TYPE")
     private String userType;
-
-    @Column(name = "SALUTATION")
-    private String salutation;
 
     @Column(name = "USER_DOB")
     private Timestamp dateOfBirth;
@@ -108,4 +96,13 @@ public class User extends AuditableModel implements Serializable {
     @Column(name = "OTP_VALID_UNTIL")
     private Timestamp otpValidUntil;
 
+    public User(UserDTO userDTO) {
+        this.userName = userDTO.getEmail();
+        this.password = userDTO.getPassword();
+        this.email = userDTO.getEmail();
+        this.mobileNo = userDTO.getMobileNo();
+        this.firstName = userDTO.getFirstName();
+        this.lastName = userDTO.getLastName();
+        this.dateOfBirth = userDTO.getDateOfBirth();
+    }
 }
