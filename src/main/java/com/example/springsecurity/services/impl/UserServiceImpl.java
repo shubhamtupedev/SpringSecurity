@@ -6,10 +6,12 @@ import com.example.springsecurity.Exception.UserServiceLogicException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
 import com.example.springsecurity.config.UserPrincipal;
-import com.example.springsecurity.entity.Transaction;
+import com.example.springsecurity.constant.ApplicationConstant;
+import com.example.springsecurity.entity.SystemParameter;
 import com.example.springsecurity.entity.User;
+import com.example.springsecurity.entityDTO.SystemParameterDTO;
 import com.example.springsecurity.entityDTO.UserDTO;
-import com.example.springsecurity.repository.TransactionRepository;
+import com.example.springsecurity.repository.SystemParameterRepository;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -40,6 +41,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private TransactionServiceImpl transactionServiceImpl;
 
+    @Autowired
+    private SystemParameterRepository systemParameterRepository;
+
     @Value("${password.expiry.days}")
     private int passwordExpiryDays;
 
@@ -49,24 +53,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws UserAlreadyExistsException, UserServiceLogicException {
         try {
-            if (userRepository.findByUserName(userDTO.getUserName()) != null) {
-                throw new UserAlreadyExistsException("Registration Failed! Username already exists " + userDTO.getUserName());
-            }
+
             if (userRepository.findByemail(userDTO.getEmail()) != null) {
                 throw new UserAlreadyExistsException("Registration Failed! Email already exists " + userDTO.getEmail());
             }
 
+            if (userRepository.findByMobileNo(userDTO.getMobileNo()) != null) {
+                throw new UserAlreadyExistsException("Registration Failed! Mobile no already exists " + userDTO.getMobileNo());
+            }
+
             User userDetails = new User(userDTO);
 
-            userDetails.setCurrentSessions(Long.valueOf(0));
             userDetails.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            userDetails.setUserType(ApplicationConstant.USER_TYPE_STANDARD);
 
             Timestamp passwordExpiryDate = new Timestamp(System.currentTimeMillis());
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_WEEK, passwordExpiryDays);
             passwordExpiryDate.setTime(calendar.getTime().getTime());
             userDetails.setPasswordExpiryDate(passwordExpiryDate);
-
             Timestamp passwordExpiryAlertDate = new Timestamp(System.currentTimeMillis());
             Calendar calendarr = Calendar.getInstance();
             calendarr.add(Calendar.DAY_OF_WEEK, passwordExpiryAlertDays);
@@ -75,8 +80,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             userDetails.setInactive(false);
             userDetails.setIsAcntEnabled(true);
-            userDetails.setGraceLongRemaining(Long.valueOf(0));
-            userDetails.setMaximumSessions(Long.valueOf(10));
+            userDetails.setMaximumSessions(Integer.parseInt(systemParameterRepository.getSysParamValue(ApplicationConstant.DEFAULT_MAXIMUM_SESSION)));
+            userDetails.setCurrentSessions(0);
+            userDetails.setInvalidAttempt(0);
             userDetails.setOnlineInd(false);
             Long dtlId = transactionServiceImpl.getMaxDtlId();
             userDetails.setDtlId(dtlId);
@@ -86,7 +92,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userDetails.setCreatedDate(createdDate);
             userRepository.save(userDetails);
 
-            saveTransaction();
+//            transactionServiceImpl.saveTransactionDetails(dtlId, "saveUser", this.getClass().getName(), );
+
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User Registration Successfull"));
         } catch (UserAlreadyExistsException e) {
             saveTransaction();

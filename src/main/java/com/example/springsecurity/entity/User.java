@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -69,13 +70,13 @@ public class User extends AuditableModel implements Serializable {
     private String userType;
 
     @Column(name = "USER_DOB")
-    private Timestamp dateOfBirth;
+    private Date dateOfBirth;
 
     @Column(name = "MAX_SESSIONS")
-    private Long maximumSessions;
+    private Integer maximumSessions;
 
     @Column(name = "CURRENT_SESSIONS")
-    private Long currentSessions;
+    private Integer currentSessions;
 
     @Column(name = "LAST_LOGIN_DATE")
     private Timestamp lastLoginDate;
@@ -83,9 +84,6 @@ public class User extends AuditableModel implements Serializable {
     @Column(name = "ONLINE_IND")
     @Convert(converter = BooleanToStringConverter.class)
     private boolean onlineInd;
-
-    @Column(name = "GRACE_LOGINS_RMNG")
-    private Long graceLongRemaining;
 
     @Column(name = "LAST_LOGOUT_DATE")
     private Timestamp lastLogoutDate;
@@ -95,6 +93,9 @@ public class User extends AuditableModel implements Serializable {
 
     @Column(name = "OTP_VALID_UNTIL")
     private Timestamp otpValidUntil;
+
+    @Column(name = "INVALID_ATMPT")
+    private Integer invalidAttempt;
 
     public User(UserDTO userDTO) {
         this.userName = userDTO.getEmail();

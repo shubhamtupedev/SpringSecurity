@@ -7,8 +7,10 @@ import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.entityDTO.UserDTO;
 import com.example.springsecurity.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

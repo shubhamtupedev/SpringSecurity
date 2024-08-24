@@ -3,6 +3,7 @@ package com.example.springsecurity.handler;
 import com.example.springsecurity.Exception.UserAlreadyExistsException;
 import com.example.springsecurity.Exception.UserNotFoundException;
 import com.example.springsecurity.Exception.UserServiceLogicException;
+import com.example.springsecurity.Exception.ValidationException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestControllerAdvice
-public class UserServiceExceptionHandler {
+public class ExceptionsHandler {
 
 
     @ExceptionHandler(value = UserAlreadyExistsException.class)
@@ -31,6 +32,11 @@ public class UserServiceExceptionHandler {
     @ExceptionHandler(value = UserServiceLogicException.class)
     public ResponseEntity<ApiResponseDto<?>> userServiceLogicException(UserServiceLogicException userServiceLogicException) {
         return ResponseEntity.badRequest().body(new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), userServiceLogicException.getMessage()));
+    }
+
+    @ExceptionHandler(value = ValidationException.class)
+    public ResponseEntity<ApiResponseDto<?>> validationException(ValidationException validationException) {
+        return ResponseEntity.badRequest().body(new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), validationException.getMessage()));
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

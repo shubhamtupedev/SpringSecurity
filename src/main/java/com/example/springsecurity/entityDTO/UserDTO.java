@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 @Data
@@ -19,8 +20,8 @@ public class UserDTO {
 
     private String userName;
 
-    @Size(min = 8, message = "The username must be at least 8 characters long.")
-    @Size(max = 15, message = "The username must be at least 15 characters long.")
+    @Size(min = 8, message = "The password must be at least 8 characters long.")
+    @Size(max = 15, message = "The password must be at least 15 characters long.")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@.#$%^&*])[a-zA-Z0-9!@.#$%^&*]{8,15}", message = "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.")
     @NotBlank(message = "The password field is required. Please provide a password.")
     private String password;
@@ -30,7 +31,7 @@ public class UserDTO {
     private Timestamp passwordExpiryDate;
 
     @Email(message = "The email is not in the correct format. Please enter a valid email.")
-    @NotBlank(message = "The password email is required. Please provide a email.")
+    @NotBlank(message = "The email is required. Please provide a email.")
     private String email;
 
     @NotBlank(message = "The mobile no is not in the correct format. Please enter a valid mobile no.")
@@ -53,7 +54,7 @@ public class UserDTO {
     private String userType;
 
     @NotNull(message = "date of birth is required!")
-    private Timestamp dateOfBirth;
+    private Date dateOfBirth;
 
     private Long maximumSessions;
 

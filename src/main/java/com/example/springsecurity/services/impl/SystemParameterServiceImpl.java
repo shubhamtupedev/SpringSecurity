@@ -26,10 +26,11 @@ public class SystemParameterServiceImpl implements SystemPrameterService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> saveSystemParameterDetails(SystemParameterDTO systemParameterDTO) throws ValidationException, ServiceException {
         try {
-            if (systemParameterRepository.findBySysParamKey(systemParameterDTO.getSysParamKey()) != null) {
+
+            List<SystemParameter> systemParameterDTOList = systemParameterRepository.findBySysParamKey(systemParameterDTO.getSysParamKey());
+            if (systemParameterDTOList != null && !systemParameterDTOList.isEmpty()) {
                 throw new ValidationException("The system parameter " + systemParameterDTO.getSysParamKey() + " already exists. Please choose a different parameter name.");
             }
-
             SystemParameter systemParameter = new SystemParameter(systemParameterDTO);
             systemParameterRepository.save(systemParameter);
 
