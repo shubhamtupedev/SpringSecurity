@@ -70,7 +70,7 @@ public class UserController {
         Map<String, String> response = new HashMap<>();
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), passwordEncoder.encode(loginRequest.getPassword())));
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
             String token = jwtUtil.generateTokenFromUsername(loginRequest.getUsername());
             response.put("token", token);
         } catch (AuthenticationException e) {
