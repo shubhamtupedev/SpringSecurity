@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             userDetails.setInactive(false);
             userDetails.setIsAcntEnabled(true);
-            userDetails.setMaximumSessions(Integer.parseInt(systemParameterRepository.getSysParamValue(ApplicationConstant.DEFAULT_MAXIMUM_SESSION)));
+//            userDetails.setMaximumSessions(Integer.parseInt(systemParameterRepository.getSysParamValue(ApplicationConstant.DEFAULT_MAXIMUM_SESSION)));
             userDetails.setCurrentSessions(0);
             userDetails.setInvalidAttempt(0);
             userDetails.setOnlineInd(false);
@@ -187,10 +187,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (userRepository.findByUserName(username) == null) {
+
+        User user = userRepository.findByUserName(username);
+        if (user == null) {
             throw new UsernameNotFoundException("User Not Exists! Kindly check username.");
         }
-        User user = userRepository.findByUserName(username);
         return new UserPrincipal(user);
     }
 
