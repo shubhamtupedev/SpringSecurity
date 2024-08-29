@@ -3,6 +3,7 @@ package com.example.springsecurity.config;
 import com.example.springsecurity.jwt.AuthEntryPointJwt;
 import com.example.springsecurity.jwt.AuthTokenFilter;
 import com.example.springsecurity.jwt.JwtUtils;
+import com.example.springsecurity.services.impl.CustomUserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,8 +28,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
 
-    @Autowired
-    public UserDetailsService userDetailsService;
+//    @Autowired
+//    public CustomUserServiceImpl customUserService;
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
@@ -43,11 +45,12 @@ public class WebSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/v1/user/login").permitAll().requestMatchers("/api/v1/user/registerUser").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/v1/user/login").permitAll().requestMatchers("/h2-console/**").permitAll().requestMatchers("/api/v1/auth/register").permitAll().anyRequest().authenticated());
 //        http.formLogin(Customizer.withDefaults()).userDetailsService(userDetailsService).pa
         http.csrf((csrf) -> csrf.disable());
         http.cors(Customizer.withDefaults());
         http.httpBasic(Customizer.withDefaults());
+        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 //        http.sessionManagement((manager) -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //        http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(),

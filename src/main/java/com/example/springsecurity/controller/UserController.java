@@ -3,6 +3,7 @@ package com.example.springsecurity.controller;
 import com.example.springsecurity.Exception.UserAlreadyExistsException;
 import com.example.springsecurity.Exception.UserNotFoundException;
 import com.example.springsecurity.Exception.UserServiceLogicException;
+import com.example.springsecurity.Exception.ValidationException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.entityDTO.UserDTO;
@@ -25,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1")
 public class UserController {
 
     @Autowired
@@ -40,32 +41,28 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/getAllUsers")
-    public ResponseEntity<ApiResponseDto<?>> getAllUsers() throws UserServiceLogicException {
-        return userService.getAllUsers();
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponseDto<?>> getUser(@RequestParam String query) throws UserNotFoundException, UserServiceLogicException {
+        return userService.getUser(null);
     }
 
-    @GetMapping("/getUser/{username}")
-    public ResponseEntity<ApiResponseDto<?>> getUser(@PathVariable String username) throws UserNotFoundException, UserServiceLogicException {
-        return userService.getUser(username);
-    }
-
-    @PostMapping("/registerUser")
+    @PostMapping("/auth/register")
     public ResponseEntity<ApiResponseDto<?>> registerUser(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistsException, UserServiceLogicException {
         return userService.saveUser(userDTO);
     }
 
-    @DeleteMapping("/deleteUser/{username}")
+    @DeleteMapping("/users/{username}")
     public ResponseEntity<ApiResponseDto<?>> deleteUser(@PathVariable String username) throws UserNotFoundException, UserServiceLogicException {
         return userService.deleteUser(username);
     }
 
-    @PutMapping("/updateUser/{username}")
+    @PutMapping("/users/{username}")
     public ResponseEntity<ApiResponseDto<?>> updateUser(@Valid @PathVariable String username, @RequestBody User user) throws UserNotFoundException, UserServiceLogicException {
         return userService.updateUser(username, user);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public Map<String, String> login(@RequestBody LoginRequest loginRequest) {
         Map<String, String> response = new HashMap<>();
         try {
@@ -78,4 +75,74 @@ public class UserController {
         }
         return response;
     }
+
+//    @PostMapping("/auth/logout")
+//    public Map<String, String> logout(@RequestBody LoginRequest loginRequest) {
+//        Map<String, String> response = new HashMap<>();
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//            String token = jwtUtil.generateTokenFromUsername(loginRequest.getUsername());
+//            response.put("token", token);
+//        } catch (AuthenticationException e) {
+//            response.put("error", "Invalid username or password");
+//        }
+//        return response;
+//    }
+//
+//    @PostMapping("/auth/forgot-password")
+//    public Map<String, String> forgotPassword(@RequestBody LoginRequest loginRequest) {
+//        Map<String, String> response = new HashMap<>();
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//            String token = jwtUtil.generateTokenFromUsername(loginRequest.getUsername());
+//            response.put("token", token);
+//        } catch (AuthenticationException e) {
+//            response.put("error", "Invalid username or password");
+//        }
+//        return response;
+//    }
+//
+//    @PostMapping("/auth/change-password")
+//    public Map<String, String> changePassword(@RequestBody LoginRequest loginRequest) {
+//        Map<String, String> response = new HashMap<>();
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//            String token = jwtUtil.generateTokenFromUsername(loginRequest.getUsername());
+//            response.put("token", token);
+//        } catch (AuthenticationException e) {
+//            response.put("error", "Invalid username or password");
+//        }
+//        return response;
+//    }
+//
+//    @PostMapping("/auth/verify-email")
+//    public Map<String, String> verifyEmail(@RequestBody LoginRequest loginRequest) {
+//        Map<String, String> response = new HashMap<>();
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//            String token = jwtUtil.generateTokenFromUsername(loginRequest.getUsername());
+//            response.put("token", token);
+//        } catch (AuthenticationException e) {
+//            response.put("error", "Invalid username or password");
+//        }
+//        return response;
+//    }
+//
+//    @PostMapping("/auth/resend-verification-email")
+//    public Map<String, String> resendVerificationMail(@RequestBody LoginRequest loginRequest) {
+//        Map<String, String> response = new HashMap<>();
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+//            String token = jwtUtil.generateTokenFromUsername(loginRequest.getUsername());
+//            response.put("token", token);
+//        } catch (AuthenticationException e) {
+//            response.put("error", "Invalid username or password");
+//        }
+//        return response;
+//    }
 }

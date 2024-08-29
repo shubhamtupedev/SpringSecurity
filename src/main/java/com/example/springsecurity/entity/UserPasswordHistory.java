@@ -2,6 +2,7 @@ package com.example.springsecurity.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "MST_USR_LST_PWD_HST")
+@Table(name = "USER_PASSWORD_HISTORY", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "USER_PWD")
+})
 public class UserPasswordHistory extends AuditableModel implements Serializable {
 
     @Id
@@ -20,16 +23,16 @@ public class UserPasswordHistory extends AuditableModel implements Serializable 
     @Column(name = "UPH_ID")
     private Long id;
 
-    @Column(name = "USER_NAME")
-    @NotBlank
-    private String userName;
-
     @Column(name = "USER_ID")
-    @NotBlank
+    @NotNull
     private Long userId;
 
+    @Column(name = "EMAIL")
+    @NotNull
+    private String email;
+
     @Column(name = "USER_PWD")
-    @NotBlank
-    private String userPassword;
+    @NotNull
+    private String password;
 
 }

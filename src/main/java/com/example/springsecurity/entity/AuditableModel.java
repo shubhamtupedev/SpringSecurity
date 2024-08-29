@@ -1,6 +1,8 @@
 package com.example.springsecurity.entity;
 
+import com.example.springsecurity.constant.AuditEntityListener;
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +14,7 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditEntityListener.class)
 public class AuditableModel {
 
     @Column(name = "CREATED_DATE")

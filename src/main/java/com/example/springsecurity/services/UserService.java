@@ -3,6 +3,7 @@ package com.example.springsecurity.services;
 import com.example.springsecurity.Exception.UserAlreadyExistsException;
 import com.example.springsecurity.Exception.UserNotFoundException;
 import com.example.springsecurity.Exception.UserServiceLogicException;
+import com.example.springsecurity.Exception.ValidationException;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.entityDTO.UserDTO;

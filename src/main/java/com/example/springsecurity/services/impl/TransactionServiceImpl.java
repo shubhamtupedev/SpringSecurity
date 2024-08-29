@@ -13,16 +13,12 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionRepository transactionRepository;
 
     @Override
-    public void saveTransactionDetails(Long transactionId, String methodname, String classname, String request, String endpoint, String clientIpAddress, String response, String trnmessage) {
+    public void saveTransactionDetails(Long transactionId, String methodName, String className, String trnMessage) {
         Transaction transaction = new Transaction();
         transaction.setTransactionId(transactionId);
-        transaction.setMethodName(methodname);
-        transaction.setClassName(classname);
-        transaction.setRequest(request);
-        transaction.setEndpoint(endpoint);
-        transaction.setClientIPAddress(clientIpAddress);
-        transaction.setResponse(response);
-        transaction.setTrnMessage(trnmessage);
+        transaction.setMethodName(methodName);
+        transaction.setClassName(className);
+        transaction.setTrnMessage(trnMessage);
         transactionRepository.save(transaction);
 
     }

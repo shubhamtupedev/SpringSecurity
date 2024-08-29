@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
+
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     @Query("SELECT MAX(transactionId) FROM Transaction")

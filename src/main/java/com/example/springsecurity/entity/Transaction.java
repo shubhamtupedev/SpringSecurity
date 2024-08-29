@@ -26,18 +26,6 @@ public class Transaction implements Serializable {
     @Column(name = "CLASS_NAME")
     private String className;
 
-    @Column(name = "REQUEST")
-    private String request;
-
-    @Column(name = "ENDPOINT")
-    private String endpoint;
-
-    @Column(name = "CLIENT_IP_ADDRESS")
-    private String clientIPAddress;
-
-    @Column(name = "RESPONSE")
-    private String response;
-
     @Column(name = "TRANSACTION_MSG")
     private String trnMessage;
 }
