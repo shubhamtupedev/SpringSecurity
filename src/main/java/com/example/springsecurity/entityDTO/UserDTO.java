@@ -28,9 +28,6 @@ public class UserDTO {
     private String phoneNumber;
 
     @NotBlank(message = "The password field is required. Please provide a password.")
-    @Size(min = 8, message = "The password must be at least 8 characters long.")
-    @Size(max = 15, message = "The password must be at least 15 characters long.")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@.#$%^&*])[a-zA-Z0-9!@.#$%^&*]{8,15}", message = "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.")
     private String password;
 
 }

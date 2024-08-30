@@ -19,7 +19,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try (Connection connection = dataSource.getConnection()) {
-            ScriptUtils.executeSqlScript(connection, new ClassPathResource("schema.sql"));
+            ScriptUtils.executeSqlScript(connection, new ClassPathResource("schesdfma.txt"));
         } catch (SQLException e) {
             e.printStackTrace();
         }

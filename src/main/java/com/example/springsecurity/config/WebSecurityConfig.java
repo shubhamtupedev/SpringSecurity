@@ -3,20 +3,16 @@ package com.example.springsecurity.config;
 import com.example.springsecurity.jwt.AuthEntryPointJwt;
 import com.example.springsecurity.jwt.AuthTokenFilter;
 import com.example.springsecurity.jwt.JwtUtils;
-import com.example.springsecurity.services.impl.CustomUserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,12 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-//@EnableMethodSecurity
 public class WebSecurityConfig {
-
-
-//    @Autowired
-//    public CustomUserServiceImpl customUserService;
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
@@ -45,16 +36,14 @@ public class WebSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/v1/user/login").permitAll().requestMatchers("/h2-console/**").permitAll().requestMatchers("/api/v1/auth/register").permitAll().anyRequest().authenticated());
-//        http.formLogin(Customizer.withDefaults()).userDetailsService(userDetailsService).pa
+        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/v1/auth/login").permitAll().requestMatchers("/h2-console/**").permitAll().requestMatchers("/api/v1/auth/register").permitAll().anyRequest().authenticated());
         http.csrf((csrf) -> csrf.disable());
         http.cors(Customizer.withDefaults());
         http.httpBasic(Customizer.withDefaults());
         http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-//        http.sessionManagement((manager) -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement((manager) -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //        http.authenticationProvider(daoAuthenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(),
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -69,14 +58,11 @@ public class WebSecurityConfig {
 
 //    @Bean
 //    UserDetailsService userDetailsService() {
-//
 //        UserDetails user1 = User.withUsername("admin").password(passwordEncoder().encode("admin@123")).roles("ADMIN").build();
 //        UserDetails user2 = User.withUsername("user").password(passwordEncoder().encode("user@123")).roles("STANDARD").build();
-//
 //        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 //        jdbcUserDetailsManager.createUser(user1);
 //        jdbcUserDetailsManager.createUser(user2);
-//
 //        jdbcUserDetailsManager.getUsersByUsernameQuery();
 //        return jdbcUserDetailsManager;
 //    }
@@ -89,28 +75,22 @@ public class WebSecurityConfig {
 
 //    @Bean
 //    UserDetailsService userDetailsService() {
-//
 //        UserDetails user1 = User.withUsername("admin").password(passwordEncoder().encode("admin@123")).roles("ADMIN").build();
 //        UserDetails user2 = User.withUsername("user").password(passwordEncoder().encode("user@123")).roles("STANDARD").build();
-//
 //        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 //        jdbcUserDetailsManager.createUser(user1);
 //        jdbcUserDetailsManager.createUser(user2);
-//
 //        return jdbcUserDetailsManager;
 //    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-
-//        authConfig.
-
         return authConfig.getAuthenticationManager();
     }
 
 //    private AuthenticationProvider daoAuthenticationProvider() throws Exception {
 //        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-////        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+////      daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 //        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
 //        return daoAuthenticationProvider;
 //    }

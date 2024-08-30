@@ -12,20 +12,21 @@ import com.example.springsecurity.repository.UserPasswordHistoryRepository;
 import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,34 +38,24 @@ public class UserServiceImpl implements UserService {
     private @Lazy PasswordEncoder passwordEncoder;
 
     @Autowired
-    private TransactionServiceImpl transactionServiceImpl;
-
-    @Autowired
     private SystemParameterRepository systemParameterRepository;
 
     @Autowired
     private UserPasswordHistoryRepository userPasswordHistoryRepository;
 
-    @Value("${password.expiry.days}")
-    private int passwordExpiryDays;
-
-    @Value("${password.expiry.alert.days}")
-    private int passwordExpiryAlertDays;
-
     @Override
-    public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws UserAlreadyExistsException, UserServiceLogicException {
+    public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws ValidationException, ServiceException {
         try {
-//            userRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber()).ifPresent(user -> {
-//                throw new UserAlreadyExistsException("Registration Failed! Email or Phone number already exists " + userDTO.getEmail() + " " + userDTO.getPhoneNumber());
-//            });
-
             if (!userRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber()).isEmpty()) {
-                throw new UserAlreadyExistsException("Registration Failed! Email or Phone number already exists " + userDTO.getEmail() + " " + userDTO.getPhoneNumber());
+                throw new ValidationException("Registration Failed! Email or Phone number already exists " + userDTO.getEmail() + " " + userDTO.getPhoneNumber());
             }
 
             User userDetails = new User(userDTO);
 
-            userDetails.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            String decodedPassword = new String(Base64.getDecoder().decode(userDTO.getPassword()));
+            validatePasswordPolicy(decodedPassword);
+            userDetails.setPassword(passwordEncoder.encode(decodedPassword));
+
             userDetails.setIsUserActive(true);
             Long passwordExpiryDays = Long.parseLong(systemParameterRepository.getSysParamValue(ApplicationConstant.DEFAULT_PASSWORD_EXPIRY_DAYS));
             userDetails.setPasswordExpiryDate(LocalDateTime.now().plusDays(passwordExpiryDays));
@@ -72,49 +63,47 @@ public class UserServiceImpl implements UserService {
             userDetails.setPasswordExpiryAlertDate(LocalDateTime.now().plusDays(passwordExpiryAlertDays));
             userDetails.setUserType(ApplicationConstant.USER_TYPE_STANDARD);
             userDetails.setMaximumSessions(Integer.parseInt(systemParameterRepository.getSysParamValue(ApplicationConstant.DEFAULT_MAXIMUM_SESSION)));
+
             userDetails.setCurrentSessions(0);
             userDetails.setOnlineInd(false);
             userDetails.setInvalidAttempt(0);
             userDetails.setIsActLocked(false);
 
             userRepository.save(userDetails);
-
             validatePasswordHistory(userDetails);
-
-            transactionServiceImpl.saveTransactionDetails(userDetails.getDtlId(), "saveUser", this.getClass().getName().substring(this.getClass().getName().lastIndexOf('.') + 1), "User registration completed successfully!");
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User registration completed successfully!"));
-        } catch (UserAlreadyExistsException e) {
-//            saveTransaction();
-            throw new UserAlreadyExistsException(e.getMessage());
-        } catch (Exception e) {
-//            saveTransaction();
+        } catch (ValidationException e) {
             e.printStackTrace();
-            throw new UserServiceLogicException();
+            throw new ValidationException(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException();
         }
     }
 
     @Override
-    public ResponseEntity<ApiResponseDto<?>> getUser(String username) throws UserNotFoundException, UserServiceLogicException {
-//        try {
-//            if (userRepository.findByUserName(username) == null) {
-//                throw new UserNotFoundException("User Not Exists! Kindly check username.");
-//            }
-//            User user = userRepository.findByUserName(username);
-//            saveTransaction();
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), null));
-//        } catch (UserNotFoundException userNotFoundException) {
-////            saveTransaction();
-//            throw new UserNotFoundException(userNotFoundException.getMessage());
-//        } catch (Exception exception) {
-////            saveTransaction();
-//            exception.printStackTrace();
-//            throw new UserServiceLogicException();
-//        }
+    public ResponseEntity<ApiResponseDto<?>> getUser(String email, int page, int size, String sortBy, String sortOrder) throws ValidationException, ServiceException {
+        try {
+            Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
+            Pageable pageable = PageRequest.of(page, size, sort);
+            email = (email == null) ? "'%'" : email;
+            System.out.println(userRepository.findByFilters(email, pageable));
+            if (false) {
+                throw new ValidationException("User Not Exists! Kindly check username.");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), null));
+        } catch (ValidationException e) {
+            e.printStackTrace();
+            throw new ValidationException(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException();
+        }
     }
 
 
     @Override
-    public ResponseEntity<ApiResponseDto<?>> deleteUser(String username) throws UserNotFoundException, UserServiceLogicException {
+    public ResponseEntity<ApiResponseDto<?>> deleteUser(String username) throws ValidationException, ServiceException {
 //        try {
 //            if (userRepository.findByUserName(username) == null) {
 //                throw new UserNotFoundException("User Not Exists! Kindly check username.");
@@ -134,7 +123,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDto<?>> updateUser(String username, User user) throws UserNotFoundException, UserServiceLogicException {
+    public ResponseEntity<ApiResponseDto<?>> updateUser(String username, User user) throws ValidationException, ServiceException {
 //        try {
 //            if (userRepository.findByUserName(username) == null) {
 //                throw new UserNotFoundException("User Not Exists! Kindly check username.");
@@ -161,7 +150,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDto<?>> getAllUsers() throws UserServiceLogicException {
+    public ResponseEntity<ApiResponseDto<?>> getAllUsers() throws ValidationException, ServiceException {
         try {
             List<User> userList = userRepository.findAll();
 //            saveTransaction();
@@ -169,27 +158,34 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exception) {
 //            saveTransaction();
             exception.printStackTrace();
-            throw new UserServiceLogicException();
+            throw new ServiceException();
         }
     }
 
     public void validatePasswordHistory(User userDetails) throws ValidationException, ServiceException {
-        List<UserPasswordHistory> passwordHistoryList = userPasswordHistoryRepository.findByEmailAndUserId(userDetails.getEmail(), userDetails.getId());
-        if (passwordHistoryList != null && !passwordHistoryList.isEmpty()) {
-            Iterator<UserPasswordHistory> iterator = passwordHistoryList.iterator();
-            while (iterator.hasNext()) {
-                UserPasswordHistory userPasswordHistory = iterator.next();
-                if (userDetails.getPassword().equals(userPasswordHistory.getPassword())) {
-                    throw new ValidationException("Error: The password you entered already exists. Please choose a different password.");
-                }
-            }
+
+        List<UserPasswordHistory> passwordHistoryList = Optional.ofNullable(userPasswordHistoryRepository.findByEmailAndUserId(userDetails.getEmail(), userDetails.getId())).orElseGet(ArrayList::new);
+        if (passwordHistoryList.stream().anyMatch(history -> userDetails.getPassword().equals(history.getPassword()))) {
+            throw new ValidationException("Error: The password you entered already exists. Please choose a different password.");
         }
 
-        UserPasswordHistory userPasswordHistory = new UserPasswordHistory();
-        userPasswordHistory.setUserId(userDetails.getId());
-        userPasswordHistory.setEmail(userDetails.getEmail());
-        userPasswordHistory.setPassword(userDetails.getPassword());
+        UserPasswordHistory userPasswordHistory = new UserPasswordHistory(userDetails.getId(), userDetails.getEmail(), userDetails.getPassword());
         userPasswordHistoryRepository.save(userPasswordHistory);
+    }
+
+    public void validatePasswordPolicy(String password) throws ValidationException, ServiceException {
+
+        Integer passwordMinLength = Integer.parseInt(systemParameterRepository.getSysParamValue(ApplicationConstant.PASSWORD_MIN_LENGTH));
+        Integer passwordMaxLength = Integer.parseInt(systemParameterRepository.getSysParamValue(ApplicationConstant.PASSWORD_MAX_LENGTH));
+        String passwordRegexExp = systemParameterRepository.getSysParamValue(ApplicationConstant.PASSWORD_REGEX_EXPRESSION) + "{" + passwordMinLength + "," + passwordMaxLength + "}";
+
+        if (password.length() < passwordMinLength || password.length() > passwordMaxLength) {
+            throw new ValidationException("The password must be at least " + passwordMinLength + " - " + passwordMaxLength + " characters long.");
+        }
+
+        if (!Pattern.matches(passwordRegexExp.trim(), password)) {
+            throw new ValidationException("Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.");
+        }
 
     }
 }

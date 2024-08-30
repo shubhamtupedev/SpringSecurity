@@ -14,9 +14,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "MST_SYS_PARAM", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "SYS_PARAM_KEY")
-})
+@Table(name = "SYSTEM_PARAMETER", uniqueConstraints = {@UniqueConstraint(columnNames = "SYS_PARAM_KEY")})
 public class SystemParameter extends AuditableModel implements Serializable {
 
     @Id

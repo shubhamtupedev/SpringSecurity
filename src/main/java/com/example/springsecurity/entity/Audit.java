@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MST_AUDIT_LOG")
+@Table(name = "AUDIT_LOG")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,6 +34,5 @@ public class Audit implements Serializable {
 
     @Column(name = "LOCAL_DATE_TIME")
     private LocalDateTime localDateTime;
-
 
 }

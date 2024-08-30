@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "USER_SESSION_INFO")
+@Table(name = "SYSTEM_USER_SESSION_INFO")
 public class UserSessionInfo extends AuditableModel implements Serializable {
 
     @Id
