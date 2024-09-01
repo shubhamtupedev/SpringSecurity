@@ -11,7 +11,9 @@ import java.util.List;
 public interface UserService {
     public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws ValidationException, ServiceException;
 
-    public ResponseEntity<ApiResponseDto<?>> getUser(String email, int page, int size, String sortBy, String sortOrder) throws ValidationException, ServiceException;
+    public ResponseEntity<ApiResponseDto<?>> getUser(String email, int page, int size, String sortBy, String sortOrder) throws ServiceException;
+
+    public ResponseEntity<ApiResponseDto<?>> getUser(String email) throws ServiceException;
 
     public ResponseEntity<ApiResponseDto<?>> deleteUser(String username) throws ValidationException, ServiceException;
 

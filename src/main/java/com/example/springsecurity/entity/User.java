@@ -8,13 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "SYSTEM_USERS", uniqueConstraints = {@UniqueConstraint(columnNames = "EMAIL"), @UniqueConstraint(columnNames = "MOBILE_NUMBER")})
+@Table(name = "SYSTEM_USERS", uniqueConstraints = {@UniqueConstraint(columnNames = "EMAIL"), @UniqueConstraint(columnNames = "PHONE_NUMBER")})
 public class User extends AuditableModel implements Serializable {
 
     @Id
@@ -66,6 +67,15 @@ public class User extends AuditableModel implements Serializable {
     @Column(name = "ACT_LOCKED")
     @Convert(converter = BooleanToStringConverter.class)
     private Boolean isActLocked;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private UserProfile userProfile;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user1")
+    private UserPermission userPermission;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user2")
+    private Address address;
 
     public User(UserDTO userDTO) {
         this.email = userDTO.getEmail();

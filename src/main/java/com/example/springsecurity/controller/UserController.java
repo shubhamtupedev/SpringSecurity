@@ -2,13 +2,19 @@ package com.example.springsecurity.controller;
 
 import com.example.springsecurity.Exception.*;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
+import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
+import com.example.springsecurity.Utility.EntityMapper;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.entityDTO.UserDTO;
 import com.example.springsecurity.jwt.JwtUtils;
 import com.example.springsecurity.jwt.LoginRequest;
+import com.example.springsecurity.jwt.LoginResponse;
+import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -37,14 +44,18 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private @Lazy UserRepository userRepository;
 
-    @GetMapping("/profile")
-    public ResponseEntity<ApiResponseDto<?>> getUser(@RequestParam(required = false, name = "email") String email,
-                                                     @RequestParam(defaultValue = "0", name = "page") int page,
-                                                     @RequestParam(defaultValue = "10", name = "size") int size,
-                                                     @RequestParam(defaultValue = "username", name = "sortBy") String sortBy,
-                                                     @RequestParam(defaultValue = "asc", name = "sortOrder") String sortOrder) throws ValidationException, ServiceException {
+
+    @GetMapping("/user-profiles")
+    public ResponseEntity<ApiResponseDto<?>> getUser(@RequestParam(required = false, name = "email") String email, @RequestParam(defaultValue = "0", name = "page") int page, @RequestParam(defaultValue = "10", name = "size") int size, @RequestParam(defaultValue = "email", name = "sortBy") String sortBy, @RequestParam(defaultValue = "asc", name = "sortOrder") String sortOrder) throws ValidationException, ServiceException {
         return userService.getUser(email, page, size, sortBy, sortOrder);
+    }
+
+    @GetMapping("/user-profile/{email}")
+    public ResponseEntity<ApiResponseDto<?>> getUser(@PathVariable String email) throws ValidationException, ServiceException {
+        return userService.getUser(email);
     }
 
     @PostMapping("/auth/register")
@@ -53,22 +64,25 @@ public class UserController {
     }
 
     @PostMapping("/auth/login")
-    public Map<String, String> login(@RequestBody LoginRequest loginRequest) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<ApiResponseDto<?>> login(@RequestBody LoginRequest loginRequest) {
         try {
             String decodedPassword = new String(Base64.getDecoder().decode(loginRequest.getPassword()));
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), decodedPassword));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), decodedPassword));
             String token = jwtUtil.generateTokenFromUsername(loginRequest.getEmail());
-            response.put("token", token);
+            LoginResponse response = new LoginResponse();
+            Optional<User> userList = userRepository.findByEmail(loginRequest.getEmail());
+            UserDTO userDTO = EntityMapper.mapToDto(userList.get(),UserDTO.class);
+            response.setJwtToken(token);
+            response.setUserDTO(userDTO);
+            response.setMessage("User login successfully!");
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), response));
         } catch (AuthenticationException e) {
-            response.put("error", "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), e.getMessage()));
         }
-        return response;
     }
 
-    @DeleteMapping("/users/{username}")
-    public ResponseEntity<ApiResponseDto<?>> deleteUser(@PathVariable String username) throws ValidationException, ServiceException  {
+    @DeleteMapping("/users/{username}") 
+    public ResponseEntity<ApiResponseDto<?>> deleteUser(@PathVariable String username) throws ValidationException, ServiceException {
         return userService.deleteUser(username);
     }
 

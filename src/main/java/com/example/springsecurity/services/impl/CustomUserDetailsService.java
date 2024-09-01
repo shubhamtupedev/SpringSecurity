@@ -1,5 +1,7 @@
 package com.example.springsecurity.services.impl;
 
+import com.example.springsecurity.Exception.ServiceException;
+import com.example.springsecurity.Exception.ValidationException;
 import com.example.springsecurity.config.UserPrincipal;
 import com.example.springsecurity.entity.User;
 import com.example.springsecurity.repository.UserRepository;

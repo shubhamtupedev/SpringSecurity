@@ -4,8 +4,7 @@ import com.example.springsecurity.Exception.*;
 import com.example.springsecurity.ResponseDTO.ApiResponseDto;
 import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
 import com.example.springsecurity.constant.ApplicationConstant;
-import com.example.springsecurity.entity.User;
-import com.example.springsecurity.entity.UserPasswordHistory;
+import com.example.springsecurity.entity.*;
 import com.example.springsecurity.entityDTO.UserDTO;
 import com.example.springsecurity.repository.SystemParameterRepository;
 import com.example.springsecurity.repository.UserPasswordHistoryRepository;
@@ -13,6 +12,7 @@ import com.example.springsecurity.repository.UserRepository;
 import com.example.springsecurity.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -46,8 +46,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws ValidationException, ServiceException {
         try {
-            if (!userRepository.findByEmailOrPhoneNumber(userDTO.getEmail(), userDTO.getPhoneNumber()).isEmpty()) {
-                throw new ValidationException("Registration Failed! Email or Phone number already exists " + userDTO.getEmail() + " " + userDTO.getPhoneNumber());
+            if (!userRepository.findByEmail(userDTO.getEmail()).isEmpty()) {
+                throw new ValidationException("Registration Failed! Email already exists " + userDTO.getEmail());
+            }
+
+            if (!userRepository.findByPhoneNumber(userDTO.getPhoneNumber()).isEmpty()) {
+                throw new ValidationException("Registration Failed! Phone number already exists " + userDTO.getPhoneNumber());
             }
 
             User userDetails = new User(userDTO);
@@ -69,8 +73,21 @@ public class UserServiceImpl implements UserService {
             userDetails.setInvalidAttempt(0);
             userDetails.setIsActLocked(false);
 
+            UserProfile userProfile = new UserProfile();
+            userProfile.setUser(userDetails);
+            userDetails.setUserProfile(userProfile);
+
+            UserPermission userPermission = new UserPermission();
+            userPermission.setUser1(userDetails);
+            userDetails.setUserPermission(userPermission);
+
+            Address address = new Address();
+            address.setUser2(userDetails);
+            userDetails.setAddress(address);
+
             userRepository.save(userDetails);
             validatePasswordHistory(userDetails);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), "User registration completed successfully!"));
         } catch (ValidationException e) {
             e.printStackTrace();
@@ -82,25 +99,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDto<?>> getUser(String email, int page, int size, String sortBy, String sortOrder) throws ValidationException, ServiceException {
+    public ResponseEntity<ApiResponseDto<?>> getUser(String email, int page, int size, String sortBy, String sortOrder) throws ServiceException {
         try {
             Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
             Pageable pageable = PageRequest.of(page, size, sort);
-            email = (email == null) ? "'%'" : email;
-            System.out.println(userRepository.findByFilters(email, pageable));
-            if (false) {
-                throw new ValidationException("User Not Exists! Kindly check username.");
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), null));
-        } catch (ValidationException e) {
-            e.printStackTrace();
-            throw new ValidationException(e.getMessage());
+            email = (email == null) ? "%" : email;
+            Page<User> userList = userRepository.findByFilters(email, pageable);
+            System.out.println(userList.getContent());
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), userList.getContent()));
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServiceException();
         }
     }
 
+    @Override
+    public ResponseEntity<ApiResponseDto<?>> getUser(String email) throws ServiceException {
+        try {
+            Long userId = null;
+            Optional<User> userList = userRepository.findByEmail(email);
+            if (userList != null && !userList.isEmpty()) {
+                User user = userList.get();
+                userId = user.getId();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), userRepository.findById(userId)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServiceException();
+        }
+    }
 
     @Override
     public ResponseEntity<ApiResponseDto<?>> deleteUser(String username) throws ValidationException, ServiceException {

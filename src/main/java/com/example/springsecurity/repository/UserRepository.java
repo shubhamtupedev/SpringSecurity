@@ -15,11 +15,11 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT u FROM User u WHERE u.email = :email OR u.phoneNumber = :phoneNumber")
-    public Optional<User> findByEmailOrPhoneNumber(@Param("email") String email, @Param("phoneNumber") String phoneNumber) throws ValidationException, ServiceException;
-
     @Query("SELECT u FROM User u WHERE u.email = :email")
     public Optional<User> findByEmail(@Param("email") String email);
+
+    @Query("SELECT u FROM User u WHERE u.phoneNumber = :phoneNumber")
+    public Optional<User> findByPhoneNumber(@Param("phoneNumber") String phoneNumber) throws ValidationException, ServiceException;
 
     @Query("SELECT u FROM User u WHERE (:email IS NULL OR u.email LIKE %:email%)")
     Page<User> findByFilters(@Param("email") String email, Pageable pageable);
