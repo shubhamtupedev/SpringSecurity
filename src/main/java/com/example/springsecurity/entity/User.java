@@ -51,15 +51,9 @@ public class User extends AuditableModel implements Serializable {
     @Column(name = "CURRENT_SESSIONS")
     private Integer currentSessions;
 
-    @Column(name = "LAST_LOGIN_DATE")
-    private LocalDateTime lastLoginDate;
-
     @Column(name = "ONLINE_IND")
     @Convert(converter = BooleanToStringConverter.class)
     private Boolean onlineInd;
-
-    @Column(name = "LAST_LOGOUT_DATE")
-    private LocalDateTime lastLogoutDate;
 
     @Column(name = "INVALID_ATTEMPT")
     private Integer invalidAttempt;

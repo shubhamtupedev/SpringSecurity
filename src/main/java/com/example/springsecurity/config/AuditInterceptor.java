@@ -1,5 +1,6 @@
 package com.example.springsecurity.config;
 
+import com.example.springsecurity.Exception.ServiceException;
 import com.example.springsecurity.Utility.CompressionUtils;
 import com.example.springsecurity.Utility.IpAddressUtil;
 import com.example.springsecurity.services.AuditService;
@@ -53,7 +54,11 @@ public class AuditInterceptor implements HandlerInterceptor {
             String error = (ex != null) ? ex.getMessage() : null;
 
             // Save the log
-            auditService.saveLog(request.getRequestURI(), CompressionUtils.compress(requestPayload), CompressionUtils.compress(requestPayload), error);
+            try {
+                auditService.saveAuditDetails(request.getRequestURI(), requestPayload, requestPayload, error, "192.168.0.1");
+            } catch (ServiceException e) {
+                e.printStackTrace();
+            }
 
             // Copy the response body back to the response to send it to the client
             wrappedResponse.copyBodyToResponse();

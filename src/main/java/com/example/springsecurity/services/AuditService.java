@@ -1,6 +1,8 @@
 package com.example.springsecurity.services;
 
 
+import com.example.springsecurity.Exception.ServiceException;
+
 public interface AuditService {
-    public void saveLog(String endpoint, byte[] requestPayload, byte[] responsePayload, String error);
+    public void saveAuditDetails(String endpoint, String requestPayload, String responsePayload, String error, String ipAddress) throws ServiceException;
 }

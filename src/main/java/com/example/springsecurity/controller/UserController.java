@@ -10,6 +10,7 @@ import com.example.springsecurity.jwt.JwtUtils;
 import com.example.springsecurity.jwt.LoginRequest;
 import com.example.springsecurity.jwt.LoginResponse;
 import com.example.springsecurity.repository.UserRepository;
+import com.example.springsecurity.services.BaseService;
 import com.example.springsecurity.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,30 +65,64 @@ public class UserController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ApiResponseDto<?>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponseDto<?>> login(@RequestBody LoginRequest loginRequest) throws ServiceException {
+        Optional<User> userList = userRepository.findByEmail(loginRequest.getEmail());
+        if (userList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), "Email ID does not exist in the system!"));
+        }
+        User user = userList.get();
+        if (user.getIsActLocked()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), "User account is locked. Please contact administrator!"));
+        }
+
+        if (!user.getIsUserActive()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), "User account is disabled. Please contact administrator!")
+            );
+        }
+
+        String decodedPassword = new String(Base64.getDecoder().decode(loginRequest.getPassword()));
         try {
-            String decodedPassword = new String(Base64.getDecoder().decode(loginRequest.getPassword()));
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), decodedPassword));
-            String token = jwtUtil.generateTokenFromUsername(loginRequest.getEmail());
-            LoginResponse response = new LoginResponse();
-            Optional<User> userList = userRepository.findByEmail(loginRequest.getEmail());
-            UserDTO userDTO = EntityMapper.mapToDto(userList.get(),UserDTO.class);
-            response.setJwtToken(token);
-            response.setUserDTO(userDTO);
-            response.setMessage("User login successfully!");
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), response));
         } catch (AuthenticationException e) {
+            Integer invalidAttempt = (user.getInvalidAttempt() == null) ? user.getInvalidAttempt() : user.getInvalidAttempt() + 1;
+            if (invalidAttempt == 5) {
+                user.setInvalidAttempt(invalidAttempt);
+                user.setIsActLocked(true);
+            } else {
+                user.setInvalidAttempt(invalidAttempt);
+            }
+            userService.update(user);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), e.getMessage()));
         }
+
+        if (user.getCurrentSessions() >= user.getMaximumSessions()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ApiResponseDto<>(ApiResponseStatus.FAIL.name(), "User account reached maximum sessions. Please contact administrator!")
+            );
+        }
+
+        String token = jwtUtil.generateTokenFromUsername(loginRequest.getEmail());
+
+        LoginResponse response = new LoginResponse();
+        response.setJwtToken(token);
+        response.setUserDTO(EntityMapper.mapToDto(userList.get(), UserDTO.class));
+        response.setMessage("User logged in successfully!");
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto<>(ApiResponseStatus.SUCCESS.name(), response));
+
     }
 
-    @DeleteMapping("/users/{username}") 
-    public ResponseEntity<ApiResponseDto<?>> deleteUser(@PathVariable String username) throws ValidationException, ServiceException {
+    @DeleteMapping("/users/{username}")
+    public ResponseEntity<ApiResponseDto<?>> deleteUser(@PathVariable String username) throws
+            ValidationException, ServiceException {
         return userService.deleteUser(username);
     }
 
     @PutMapping("/users/{username}")
-    public ResponseEntity<ApiResponseDto<?>> updateUser(@Valid @PathVariable String username, @RequestBody User user) throws ValidationException, ServiceException {
+    public ResponseEntity<ApiResponseDto<?>> updateUser(@Valid @PathVariable String username, @RequestBody User
+            user) throws ValidationException, ServiceException {
         return userService.updateUser(username, user);
     }
 

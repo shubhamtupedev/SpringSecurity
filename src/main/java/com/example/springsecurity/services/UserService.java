@@ -19,6 +19,8 @@ public interface UserService {
 
     public ResponseEntity<ApiResponseDto<?>> updateUser(String username, User user) throws ValidationException, ServiceException;
 
+    public void update(User user) throws ServiceException;
+
     public ResponseEntity<ApiResponseDto<?>> getAllUsers() throws ValidationException, ServiceException;
 
 }

@@ -1,9 +1,9 @@
 package com.example.springsecurity.repository;
 
-import com.example.springsecurity.entity.Audit;
+import com.example.springsecurity.entity.UserSessionInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AuditRepository extends BaseRepository<Audit, Long> {
+public interface UserSessionRepository extends JpaRepository<UserSessionInfo, Long> {
 }

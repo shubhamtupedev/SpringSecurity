@@ -35,4 +35,15 @@ public class Audit implements Serializable {
     @Column(name = "LOCAL_DATE_TIME")
     private LocalDateTime localDateTime;
 
+    @Column(name = "IP_ADDRESS")
+    private String ipAddress;
+
+    public Audit(String endPoint, byte[] requestPayload, byte[] responsePayload, String error, LocalDateTime localDateTime, String ipAddress) {
+        this.endPoint = endPoint;
+        this.requestPayload = requestPayload;
+        this.responsePayload = responsePayload;
+        this.error = error;
+        this.localDateTime = localDateTime;
+        this.ipAddress = ipAddress;
+    }
 }

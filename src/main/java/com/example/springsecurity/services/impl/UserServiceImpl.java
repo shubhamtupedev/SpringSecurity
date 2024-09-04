@@ -9,6 +9,7 @@ import com.example.springsecurity.entityDTO.UserDTO;
 import com.example.springsecurity.repository.SystemParameterRepository;
 import com.example.springsecurity.repository.UserPasswordHistoryRepository;
 import com.example.springsecurity.repository.UserRepository;
+import com.example.springsecurity.services.BaseService;
 import com.example.springsecurity.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -42,6 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserPasswordHistoryRepository userPasswordHistoryRepository;
+
+//    @Autowired
+//    private BaseService baseService;
 
     @Override
     public ResponseEntity<ApiResponseDto<?>> saveUser(UserDTO userDTO) throws ValidationException, ServiceException {
@@ -174,6 +178,11 @@ public class UserServiceImpl implements UserService {
 //            exception.printStackTrace();
 //            throw new UserServiceLogicException();
 //        }
+    }
+
+    @Override
+    public void update(User user) throws ServiceException {
+        userRepository.save(user);
     }
 
     @Override
