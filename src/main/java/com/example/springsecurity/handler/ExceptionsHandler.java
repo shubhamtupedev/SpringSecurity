@@ -1,16 +1,18 @@
 package com.example.springsecurity.handler;
 
-import com.example.springsecurity.Exception.*;
-import com.example.springsecurity.ResponseDTO.ApiResponseDto;
-import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.springsecurity.Exception.ServiceException;
+import com.example.springsecurity.Exception.ValidationException;
+import com.example.springsecurity.ResponseDTO.ApiResponseDto;
+import com.example.springsecurity.ResponseDTO.ApiResponseStatus;
 
 @RestControllerAdvice
 public class ExceptionsHandler {

@@ -1,17 +1,21 @@
 package com.example.springsecurity.config;
 
-import com.example.springsecurity.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
+import com.example.springsecurity.entity.User;
 
 public class UserPrincipal implements UserDetails {
 
-    private User user;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private User user;
 
     public UserPrincipal(User user) {
         this.user = user;

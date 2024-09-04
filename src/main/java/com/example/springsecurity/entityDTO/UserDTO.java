@@ -1,15 +1,12 @@
 package com.example.springsecurity.entityDTO;
 
-import com.example.springsecurity.Utility.BooleanToStringConverter;
-import com.example.springsecurity.entity.User;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.sql.Date;
-import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
