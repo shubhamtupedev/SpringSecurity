@@ -1,8 +1,6 @@
 package com.example.springsecurity.entity;
 
-import com.example.springsecurity.entityDTO.ApplicationUsersDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
