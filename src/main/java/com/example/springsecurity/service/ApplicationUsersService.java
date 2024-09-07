@@ -9,4 +9,6 @@ import org.springframework.http.ResponseEntity;
 public interface ApplicationUsersService {
     public ResponseEntity<ApiResponseDTO<?>> saveUser(ApplicationUsersDTO applicationUsersDTO) throws ValidationException, ApplicationServiceException;
 
+    public ResponseEntity<ApiResponseDTO<?>> getUserDetails() throws ApplicationServiceException;
+
 }

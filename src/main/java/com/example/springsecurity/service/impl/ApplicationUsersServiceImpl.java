@@ -2,6 +2,7 @@ package com.example.springsecurity.service.impl;
 
 import com.example.springsecurity.applicationenum.ApiApplicationStatus;
 import com.example.springsecurity.entity.ApplicationUsers;
+import com.example.springsecurity.entity.ApplicationUsersAuthority;
 import com.example.springsecurity.entityDTO.ApplicationUsersDTO;
 import com.example.springsecurity.exceptions.ApplicationServiceException;
 import com.example.springsecurity.exceptions.ValidationException;
@@ -51,6 +52,10 @@ public class ApplicationUsersServiceImpl implements ApplicationUsersService {
             validatePasswordPolicy(decodedPassword);
 
             ApplicationUsers applicationUsers = new ApplicationUsers(applicationUsersDTO.getEmail().toUpperCase().trim(), applicationUsersDTO.getEmail().trim(), applicationUsersDTO.getPhoneNumber().trim(), bcryptPasswordEncoder.encode(decodedPassword));
+
+            ApplicationUsersAuthority applicationUsersAuthority = new ApplicationUsersAuthority("STANDARD", applicationUsers);
+            applicationUsers.setApplicationUsersAuthority(applicationUsersAuthority);
+
             applicationUsersRepository.save(applicationUsers);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(ApiApplicationStatus.SUCCESS.name(), "User registration completed successfully!"));
@@ -60,6 +65,11 @@ public class ApplicationUsersServiceImpl implements ApplicationUsersService {
             exception.printStackTrace();
             throw new ApplicationServiceException();
         }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponseDTO<?>> getUserDetails() throws ApplicationServiceException {
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(ApiApplicationStatus.SUCCESS.name(), applicationUsersRepository.findAll()));
     }
 
 

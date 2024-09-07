@@ -1,5 +1,6 @@
 package com.example.springsecurity.config;
 
+import com.example.springsecurity.jwt.AuthTokenFilter;
 import com.example.springsecurity.service.impl.CustomsUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +28,7 @@ public class WebSecurityConfig {
         httpSecurity.authorizeHttpRequests((request) -> request.requestMatchers("/api/v1/auth/register").permitAll().requestMatchers("/api/v1/auth/login").permitAll().anyRequest().authenticated());
         httpSecurity.csrf((csrf) -> csrf.disable());
         httpSecurity.sessionManagement((session_management) -> session_management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
@@ -46,6 +49,11 @@ public class WebSecurityConfig {
         daoAuthenticationProvider.setPasswordEncoder(bcryptPasswordEncoder());
         daoAuthenticationProvider.setHideUserNotFoundExceptions(false);
         return daoAuthenticationProvider;
+    }
+
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
     }
 
 }

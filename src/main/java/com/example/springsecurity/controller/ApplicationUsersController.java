@@ -5,6 +5,7 @@ import com.example.springsecurity.applicationenum.ApiApplicationStatus;
 import com.example.springsecurity.entityDTO.ApplicationUsersDTO;
 import com.example.springsecurity.exceptions.ApplicationServiceException;
 import com.example.springsecurity.exceptions.ValidationException;
+import com.example.springsecurity.jwt.JWTUtils;
 import com.example.springsecurity.responseDTO.ApiResponseDTO;
 import com.example.springsecurity.service.ApplicationUsersService;
 import jakarta.validation.Valid;
@@ -16,16 +17,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/v1")
 public class ApplicationUsersController {
+
+    @Autowired
+    private JWTUtils jwtUtil;
 
     private ApplicationUsersService applicationUsersService;
 
@@ -46,12 +48,26 @@ public class ApplicationUsersController {
         try {
             String decodedPassword = new String(Base64.getDecoder().decode(loginRequestDTO.getPassword()));
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(), decodedPassword));
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(ApiApplicationStatus.SUCCESS.name(), "User logged in successfully."));
+
+            String token = jwtUtil.generateTokenFromUsername(loginRequestDTO.getEmail());
+            HashMap map = new HashMap();
+            map.put("status", "success");
+            map.put("message", "User logged in successfully.");
+            map.put("token", token);
+            map.put("principal", authentication.getPrincipal().toString());
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(ApiApplicationStatus.SUCCESS.name(), map));
         } catch (UsernameNotFoundException exception) {
             return ResponseEntity.badRequest().body(new ApiResponseDTO<>(ApiApplicationStatus.FAIL.name(), exception.getMessage()));
         } catch (AuthenticationException exception) {
             return ResponseEntity.badRequest().body(new ApiResponseDTO<>(ApiApplicationStatus.FAIL.name(), exception.getMessage()));
         }
     }
+
+
+    @GetMapping("/userDetails")
+    public ResponseEntity<ApiResponseDTO<?>> getUserDetail() throws ApplicationServiceException {
+        return applicationUsersService.getUserDetails();
+    }
+
 
 }

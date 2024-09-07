@@ -1,5 +1,6 @@
 package com.example.springsecurity.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +31,10 @@ public class ApplicationUsers implements Serializable {
 
     @Column(name = "USER_PASSWORD")
     private String password;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "applicationUsers", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private ApplicationUsersAuthority applicationUsersAuthority;
 
     public ApplicationUsers(String email, String primary_Email, String phoneNumber, String password) {
         this.email = email;
