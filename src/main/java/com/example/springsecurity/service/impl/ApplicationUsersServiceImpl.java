@@ -28,23 +28,29 @@ public class ApplicationUsersServiceImpl implements ApplicationUsersService {
     @Autowired
     private ApplicationUsersRepository applicationUsersRepository;
 
-    @Value("{password.regex}")
+    @Value("${password.regex}")
     private String passwordRegexEnv;
 
     @Override
     public ResponseEntity<ApiResponseDTO<?>> saveUser(ApplicationUsersDTO applicationUsersDTO) throws ValidationException, ApplicationServiceException {
         try {
-            Optional.ofNullable(applicationUsersRepository.findByEmail(applicationUsersDTO.getEmail())).orElseThrow(() -> {
-                return new ValidationException("Registration Failed! Email already exists " + applicationUsersDTO.getEmail());
-            });
 
-            Optional.ofNullable(applicationUsersRepository.findByPhoneNumber(applicationUsersDTO.getPhoneNumber())).orElseThrow(() -> {
-                return new ValidationException("Registration Failed! Phone number already exists " + applicationUsersDTO.getPhoneNumber());
-            });
+            Optional<ApplicationUsers> optionalApplicationUsersByEmail = applicationUsersRepository.findByEmail(applicationUsersDTO.getEmail().toUpperCase().trim());
+
+            if (optionalApplicationUsersByEmail.isPresent()) {
+                throw new ValidationException("Registration Failed! Email already exists " + applicationUsersDTO.getEmail());
+            }
+
+            Optional<ApplicationUsers> optionalApplicationUsersByPhoneNumber = applicationUsersRepository.findByPhoneNumber(applicationUsersDTO.getPhoneNumber().trim());
+
+            if (optionalApplicationUsersByPhoneNumber.isPresent()) {
+                throw new ValidationException("Registration Failed! Phone number already exists " + applicationUsersDTO.getPhoneNumber());
+            }
+
             String decodedPassword = new String(Base64.getDecoder().decode(applicationUsersDTO.getPassword()));
             validatePasswordPolicy(decodedPassword);
 
-            ApplicationUsers applicationUsers = new ApplicationUsers(applicationUsersDTO.getEmail(), applicationUsersDTO.getPhoneNumber(), bcryptPasswordEncoder.encode(decodedPassword));
+            ApplicationUsers applicationUsers = new ApplicationUsers(applicationUsersDTO.getEmail().toUpperCase().trim(), applicationUsersDTO.getEmail().trim(), applicationUsersDTO.getPhoneNumber().trim(), bcryptPasswordEncoder.encode(decodedPassword));
             applicationUsersRepository.save(applicationUsers);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO<>(ApiApplicationStatus.SUCCESS.name(), "User registration completed successfully!"));

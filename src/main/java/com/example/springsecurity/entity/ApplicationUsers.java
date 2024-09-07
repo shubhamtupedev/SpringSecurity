@@ -24,14 +24,18 @@ public class ApplicationUsers implements Serializable {
     @Column(name = "EMAIL")
     private String email;
 
+    @Column(name = "PRIMARY_EMAIL")
+    private String primary_Email;
+
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
 
     @Column(name = "USER_PASSWORD")
     private String password;
 
-    public ApplicationUsers(String email, String phoneNumber, String password) {
+    public ApplicationUsers(String email, String primary_Email, String phoneNumber, String password) {
         this.email = email;
+        this.primary_Email = primary_Email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
