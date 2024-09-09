@@ -4,6 +4,7 @@ import com.example.springsecurity.applicationenum.ApiApplicationStatus;
 import com.example.springsecurity.exceptions.ApplicationServiceException;
 import com.example.springsecurity.exceptions.ValidationException;
 import com.example.springsecurity.responseDTO.ApiResponseDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

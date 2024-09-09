@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -34,6 +35,7 @@ public class ApplicationUsers implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "applicationUsers", fetch = FetchType.LAZY)
     @JsonManagedReference
+    @ToString.Exclude // Exclude from Lombok's toString generation to avoid recursion
     private ApplicationUsersAuthority applicationUsersAuthority;
 
     public ApplicationUsers(String email, String primary_Email, String phoneNumber, String password) {
@@ -41,5 +43,16 @@ public class ApplicationUsers implements Serializable {
         this.primary_Email = primary_Email;
         this.phoneNumber = phoneNumber;
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "ApplicationUsers{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", primary_Email='" + primary_Email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }

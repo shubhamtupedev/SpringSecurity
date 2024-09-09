@@ -1,5 +1,11 @@
 package com.example.springsecurity.entityDTO;
 
+import com.example.springsecurity.entity.ApplicationUsersAuthority;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -26,4 +32,22 @@ public class ApplicationUsersDTO {
 
     @NotBlank(message = "The password field is required, please provide password.")
     private String password;
+
+    private ApplicationUsersAuthorityDTO applicationUsersAuthority;
+
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String toString() {
+        return "ApplicationUsersDTO{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", password='" + password + '\'' +
+                ", applicationUsersAuthorityDTO=" + applicationUsersAuthority +
+                '}';
+    }
 }

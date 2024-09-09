@@ -44,19 +44,18 @@ public class JWTUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretKey));
     }
 
-    public boolean validateJwtToken(String authToken) {
+    public boolean validateJwtToken(String authToken) throws ExpiredJwtException {
         try {
             Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
             return true;
         } catch (MalformedJwtException e) {
-            e.printStackTrace();
+            throw e;
         } catch (ExpiredJwtException e) {
-            e.printStackTrace();
+            throw e;
         } catch (UnsupportedJwtException e) {
-            e.printStackTrace();
+            throw e;
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            throw e;
         }
-        return false;
     }
 }

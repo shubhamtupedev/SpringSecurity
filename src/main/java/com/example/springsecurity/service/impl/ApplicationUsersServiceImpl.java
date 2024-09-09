@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -68,8 +69,8 @@ public class ApplicationUsersServiceImpl implements ApplicationUsersService {
     }
 
     @Override
-    public ResponseEntity<ApiResponseDTO<?>> getUserDetails() throws ApplicationServiceException {
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO<>(ApiApplicationStatus.SUCCESS.name(), applicationUsersRepository.findAll()));
+    public List<ApplicationUsers> getUserDetails() throws ApplicationServiceException {
+        return applicationUsersRepository.findAll();
     }
 
 
